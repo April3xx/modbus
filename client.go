@@ -38,7 +38,7 @@ func NewClient2(packager Packager, transporter Transporter) Client {
 //  Function code         : 1 byte (0x01)
 //  Byte count            : 1 byte
 //  Coil status           : N* bytes (=N or N+1)
-func (mb *client) ReadCoils(address, quantity uint16) (results []byte, err error) {
+func (mb *client) ReadCoils(address, quantity int16) (results []byte, err error) { //uint to int
 	if quantity < 1 || quantity > 2000 {
 		err = fmt.Errorf("modbus: quantity '%v' must be between '%v' and '%v',", quantity, 1, 2000)
 		return
@@ -69,7 +69,7 @@ func (mb *client) ReadCoils(address, quantity uint16) (results []byte, err error
 //  Function code         : 1 byte (0x02)
 //  Byte count            : 1 byte
 //  Input status          : N* bytes (=N or N+1)
-func (mb *client) ReadDiscreteInputs(address, quantity uint16) (results []byte, err error) {
+func (mb *client) ReadDiscreteInputs(address, quantity int16) (results []byte, err error) { //uint to int
 	if quantity < 1 || quantity > 2000 {
 		err = fmt.Errorf("modbus: quantity '%v' must be between '%v' and '%v',", quantity, 1, 2000)
 		return
@@ -100,7 +100,7 @@ func (mb *client) ReadDiscreteInputs(address, quantity uint16) (results []byte, 
 //  Function code         : 1 byte (0x03)
 //  Byte count            : 1 byte
 //  Register value        : Nx2 bytes
-func (mb *client) ReadHoldingRegisters(address, quantity uint16) (results []byte, err error) {
+func (mb *client) ReadHoldingRegisters(address, quantity int16) (results []byte, err error) { //uint to int
 	if quantity < 1 || quantity > 125 {
 		err = fmt.Errorf("modbus: quantity '%v' must be between '%v' and '%v',", quantity, 1, 125)
 		return
@@ -131,7 +131,7 @@ func (mb *client) ReadHoldingRegisters(address, quantity uint16) (results []byte
 //  Function code         : 1 byte (0x04)
 //  Byte count            : 1 byte
 //  Input registers       : N bytes
-func (mb *client) ReadInputRegisters(address, quantity uint16) (results []byte, err error) {
+func (mb *client) ReadInputRegisters(address, quantity int16) (results []byte, err error) { //uint to int
 	if quantity < 1 || quantity > 125 {
 		err = fmt.Errorf("modbus: quantity '%v' must be between '%v' and '%v',", quantity, 1, 125)
 		return
@@ -162,12 +162,12 @@ func (mb *client) ReadInputRegisters(address, quantity uint16) (results []byte, 
 //  Function code         : 1 byte (0x05)
 //  Output address        : 2 bytes
 //  Output value          : 2 bytes
-func (mb *client) WriteSingleCoil(address, value uint16) (results []byte, err error) {
+func (mb *client) WriteSingleCoil(address, value int16) (results []byte, err error) { //uint to int
 	// The requested ON/OFF state can only be 0xFF00 and 0x0000
-	if value != 0xFF00 && value != 0x0000 {
-		err = fmt.Errorf("modbus: state '%v' must be either 0xFF00 (ON) or 0x0000 (OFF)", value)
-		return
-	}
+	// if value != 0xFF00 && value != 0x0000 {
+	// 	err = fmt.Errorf("modbus: state '%v' must be either 0xFF00 (ON) or 0x0000 (OFF)", value)
+	// 	return
+	// }
 	request := ProtocolDataUnit{
 		FunctionCode: FuncCodeWriteSingleCoil,
 		Data:         dataBlock(address, value),
@@ -181,17 +181,17 @@ func (mb *client) WriteSingleCoil(address, value uint16) (results []byte, err er
 		err = fmt.Errorf("modbus: response data size '%v' does not match expected '%v'", len(response.Data), 4)
 		return
 	}
-	respValue := binary.BigEndian.Uint16(response.Data)
-	if address != respValue {
-		err = fmt.Errorf("modbus: response address '%v' does not match request '%v'", respValue, address)
-		return
-	}
+	//respValue := binary.BigEndian.Uint16(response.Data)
+	// if address != respValue {
+	// 	err = fmt.Errorf("modbus: response address '%v' does not match request '%v'", respValue, address)
+	// 	return
+	// }
 	results = response.Data[2:]
-	respValue = binary.BigEndian.Uint16(results)
-	if value != respValue {
-		err = fmt.Errorf("modbus: response value '%v' does not match request '%v'", respValue, value)
-		return
-	}
+	// respValue = binary.BigEndian.Uint16(results)
+	// if value != respValue {
+	// 	err = fmt.Errorf("modbus: response value '%v' does not match request '%v'", respValue, value)
+	// 	return
+	// }
 	return
 }
 
@@ -203,7 +203,7 @@ func (mb *client) WriteSingleCoil(address, value uint16) (results []byte, err er
 //  Function code         : 1 byte (0x06)
 //  Register address      : 2 bytes
 //  Register value        : 2 bytes
-func (mb *client) WriteSingleRegister(address, value uint16) (results []byte, err error) {
+func (mb *client) WriteSingleRegister(address, value int16) (results []byte, err error) { //int16 to uint16
 	request := ProtocolDataUnit{
 		FunctionCode: FuncCodeWriteSingleRegister,
 		Data:         dataBlock(address, value),
@@ -217,17 +217,17 @@ func (mb *client) WriteSingleRegister(address, value uint16) (results []byte, er
 		err = fmt.Errorf("modbus: response data size '%v' does not match expected '%v'", len(response.Data), 4)
 		return
 	}
-	respValue := binary.BigEndian.Uint16(response.Data)
-	if address != respValue {
-		err = fmt.Errorf("modbus: response address '%v' does not match request '%v'", respValue, address)
-		return
-	}
+	// respValue := binary.BigEndian.Uint16(response.Data)
+	// if address != respValue {
+	// 	err = fmt.Errorf("modbus: response address '%v' does not match request '%v'", respValue, address)
+	// 	return
+	// }
 	results = response.Data[2:]
-	respValue = binary.BigEndian.Uint16(results)
-	if value != respValue {
-		err = fmt.Errorf("modbus: response value '%v' does not match request '%v'", respValue, value)
-		return
-	}
+	// respValue = binary.BigEndian.Uint16(results)
+	// if value != respValue {
+	// 	err = fmt.Errorf("modbus: response value '%v' does not match request '%v'", respValue, value)
+	// 	return
+	// }
 	return
 }
 
@@ -241,7 +241,7 @@ func (mb *client) WriteSingleRegister(address, value uint16) (results []byte, er
 //  Function code         : 1 byte (0x0F)
 //  Starting address      : 2 bytes
 //  Quantity of outputs   : 2 bytes
-func (mb *client) WriteMultipleCoils(address, quantity uint16, value []byte) (results []byte, err error) {
+func (mb *client) WriteMultipleCoils(address, quantity int16, value []byte) (results []byte, err error) { //uint to int
 	if quantity < 1 || quantity > 1968 {
 		err = fmt.Errorf("modbus: quantity '%v' must be between '%v' and '%v',", quantity, 1, 1968)
 		return
@@ -259,17 +259,17 @@ func (mb *client) WriteMultipleCoils(address, quantity uint16, value []byte) (re
 		err = fmt.Errorf("modbus: response data size '%v' does not match expected '%v'", len(response.Data), 4)
 		return
 	}
-	respValue := binary.BigEndian.Uint16(response.Data)
-	if address != respValue {
-		err = fmt.Errorf("modbus: response address '%v' does not match request '%v'", respValue, address)
-		return
-	}
+	//respValue := binary.BigEndian.Uint16(response.Data)
+	// if address != respValue {
+	// 	err = fmt.Errorf("modbus: response address '%v' does not match request '%v'", respValue, address)
+	// 	return
+	// }
 	results = response.Data[2:]
-	respValue = binary.BigEndian.Uint16(results)
-	if quantity != respValue {
-		err = fmt.Errorf("modbus: response quantity '%v' does not match request '%v'", respValue, quantity)
-		return
-	}
+	// respValue = binary.BigEndian.Uint16(results)
+	// if quantity != respValue {
+	// 	err = fmt.Errorf("modbus: response quantity '%v' does not match request '%v'", respValue, quantity)
+	// 	return
+	// }
 	return
 }
 
@@ -283,7 +283,7 @@ func (mb *client) WriteMultipleCoils(address, quantity uint16, value []byte) (re
 //  Function code         : 1 byte (0x10)
 //  Starting address      : 2 bytes
 //  Quantity of registers : 2 bytes
-func (mb *client) WriteMultipleRegisters(address, quantity uint16, value []byte) (results []byte, err error) {
+func (mb *client) WriteMultipleRegisters(address, quantity int16, value []byte) (results []byte, err error) { //uint to int
 	if quantity < 1 || quantity > 123 {
 		err = fmt.Errorf("modbus: quantity '%v' must be between '%v' and '%v',", quantity, 1, 123)
 		return
@@ -301,17 +301,17 @@ func (mb *client) WriteMultipleRegisters(address, quantity uint16, value []byte)
 		err = fmt.Errorf("modbus: response data size '%v' does not match expected '%v'", len(response.Data), 4)
 		return
 	}
-	respValue := binary.BigEndian.Uint16(response.Data)
-	if address != respValue {
-		err = fmt.Errorf("modbus: response address '%v' does not match request '%v'", respValue, address)
-		return
-	}
+	// respValue := binary.BigEndian.Uint16(response.Data)
+	// if address != respValue {
+	// 	err = fmt.Errorf("modbus: response address '%v' does not match request '%v'", respValue, address)
+	// 	return
+	// }
 	results = response.Data[2:]
-	respValue = binary.BigEndian.Uint16(results)
-	if quantity != respValue {
-		err = fmt.Errorf("modbus: response quantity '%v' does not match request '%v'", respValue, quantity)
-		return
-	}
+	// respValue = binary.BigEndian.Uint16(results)
+	// if quantity != respValue {
+	// 	err = fmt.Errorf("modbus: response quantity '%v' does not match request '%v'", respValue, quantity)
+	// 	return
+	// }
 	return
 }
 
@@ -325,7 +325,7 @@ func (mb *client) WriteMultipleRegisters(address, quantity uint16, value []byte)
 //  Reference address     : 2 bytes
 //  AND-mask              : 2 bytes
 //  OR-mask               : 2 bytes
-func (mb *client) MaskWriteRegister(address, andMask, orMask uint16) (results []byte, err error) {
+func (mb *client) MaskWriteRegister(address, andMask, orMask int16) (results []byte, err error) { //uint to int
 	request := ProtocolDataUnit{
 		FunctionCode: FuncCodeMaskWriteRegister,
 		Data:         dataBlock(address, andMask, orMask),
@@ -339,21 +339,21 @@ func (mb *client) MaskWriteRegister(address, andMask, orMask uint16) (results []
 		err = fmt.Errorf("modbus: response data size '%v' does not match expected '%v'", len(response.Data), 6)
 		return
 	}
-	respValue := binary.BigEndian.Uint16(response.Data)
-	if address != respValue {
-		err = fmt.Errorf("modbus: response address '%v' does not match request '%v'", respValue, address)
-		return
-	}
-	respValue = binary.BigEndian.Uint16(response.Data[2:])
-	if andMask != respValue {
-		err = fmt.Errorf("modbus: response AND-mask '%v' does not match request '%v'", respValue, andMask)
-		return
-	}
-	respValue = binary.BigEndian.Uint16(response.Data[4:])
-	if orMask != respValue {
-		err = fmt.Errorf("modbus: response OR-mask '%v' does not match request '%v'", respValue, orMask)
-		return
-	}
+	//respValue := binary.BigEndian.Uint16(response.Data)
+	// if address != respValue {
+	// 	err = fmt.Errorf("modbus: response address '%v' does not match request '%v'", respValue, address)
+	// 	return
+	// }
+	//respValue = binary.BigEndian.Uint16(response.Data[2:])
+	// if andMask != respValue {
+	// 	err = fmt.Errorf("modbus: response AND-mask '%v' does not match request '%v'", respValue, andMask)
+	// 	return
+	// }
+	//respValue = binary.BigEndian.Uint16(response.Data[4:])
+	// if orMask != respValue {
+	// 	err = fmt.Errorf("modbus: response OR-mask '%v' does not match request '%v'", respValue, orMask)
+	// 	return
+	// }
 	results = response.Data[2:]
 	return
 }
@@ -370,7 +370,7 @@ func (mb *client) MaskWriteRegister(address, andMask, orMask uint16) (results []
 //  Function code         : 1 byte (0x17)
 //  Byte count            : 1 byte
 //  Read registers value  : Nx2 bytes
-func (mb *client) ReadWriteMultipleRegisters(readAddress, readQuantity, writeAddress, writeQuantity uint16, value []byte) (results []byte, err error) {
+func (mb *client) ReadWriteMultipleRegisters(readAddress, readQuantity, writeAddress, writeQuantity int16, value []byte) (results []byte, err error) { //uint to int
 	if readQuantity < 1 || readQuantity > 125 {
 		err = fmt.Errorf("modbus: quantity to read '%v' must be between '%v' and '%v',", readQuantity, 1, 125)
 		return
@@ -405,7 +405,7 @@ func (mb *client) ReadWriteMultipleRegisters(readAddress, readQuantity, writeAdd
 //  FIFO count            : 2 bytes
 //  FIFO count            : 2 bytes (<=31)
 //  FIFO value register   : Nx2 bytes
-func (mb *client) ReadFIFOQueue(address uint16) (results []byte, err error) {
+func (mb *client) ReadFIFOQueue(address int16) (results []byte, err error) {
 	request := ProtocolDataUnit{
 		FunctionCode: FuncCodeReadFIFOQueue,
 		Data:         dataBlock(address),
@@ -465,7 +465,7 @@ func (mb *client) send(request *ProtocolDataUnit) (response *ProtocolDataUnit, e
 }
 
 // dataBlock creates a sequence of uint16 data.
-func dataBlock(value ...uint16) []byte {
+func dataBlock(value ...int16) []byte { //uint to int
 	data := make([]byte, 2*len(value))
 	for i, v := range value {
 		binary.BigEndian.PutUint16(data[i*2:], v)
@@ -474,7 +474,7 @@ func dataBlock(value ...uint16) []byte {
 }
 
 // dataBlockSuffix creates a sequence of uint16 data and append the suffix plus its length.
-func dataBlockSuffix(suffix []byte, value ...uint16) []byte {
+func dataBlockSuffix(suffix []byte, value ...int16) []byte { //uint to int
 	length := 2 * len(value)
 	data := make([]byte, length+1+len(suffix))
 	for i, v := range value {

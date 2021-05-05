@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	tcpProtocolIdentifier uint16 = 0x0000
+	tcpProtocolIdentifier int16 = 0x0000 //uint to int
 
 	// Modbus Application Protocol
 	tcpHeaderSize = 7
@@ -67,11 +67,11 @@ func (mb *tcpPackager) Encode(pdu *ProtocolDataUnit) (adu []byte, err error) {
 
 	// Transaction identifier
 	transactionId := atomic.AddUint32(&mb.transactionId, 1)
-	binary.BigEndian.PutUint16(adu, uint16(transactionId))
+	binary.BigEndian.PutUint16(adu, int16(transactionId))
 	// Protocol identifier
 	binary.BigEndian.PutUint16(adu[2:], tcpProtocolIdentifier)
 	// Length = sizeof(SlaveId) + sizeof(FunctionCode) + Data
-	length := uint16(1 + 1 + len(pdu.Data))
+	length := int16(1 + 1 + len(pdu.Data))
 	binary.BigEndian.PutUint16(adu[4:], length)
 	// Unit identifier
 	adu[6] = mb.SlaveId

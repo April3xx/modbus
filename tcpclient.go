@@ -67,12 +67,12 @@ func (mb *tcpPackager) Encode(pdu *ProtocolDataUnit) (adu []byte, err error) {
 
 	// Transaction identifier
 	transactionId := atomic.AddUint32(&mb.transactionId, 1)
-	binary.BigEndian.PutUint16(adu, int16(transactionId))
+	binary.BigEndian.Putint16(adu, int16(transactionId))
 	// Protocol identifier
-	binary.BigEndian.PutUint16(adu[2:], tcpProtocolIdentifier)
+	binary.BigEndian.Putint16(adu[2:], tcpProtocolIdentifier)
 	// Length = sizeof(SlaveId) + sizeof(FunctionCode) + Data
 	length := int16(1 + 1 + len(pdu.Data))
-	binary.BigEndian.PutUint16(adu[4:], length)
+	binary.BigEndian.Putint16(adu[4:], length)
 	// Unit identifier
 	adu[6] = mb.SlaveId
 
